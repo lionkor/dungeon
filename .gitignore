@@ -1,0 +1,8 @@
+*.cflags
+*.config
+*.cxxflags
+*.files
+*.includes
+*.sh
+bin/**
+*.creator*
