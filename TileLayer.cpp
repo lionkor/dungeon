@@ -1,6 +1,6 @@
 #include "TileLayer.h"
 
-TileLayer::TileLayer()
+TileLayer::TileLayer(TextureId texture_id)
+    : m_texture_id(texture_id)
 {
-    
 }

@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_executable(dungeon main.cpp 
     Camera.cpp Camera.h 
     Cell.cpp Cell.h 
+    #CellFileParser.cpp CellFileParser.h
     Global.h 
     Player.cpp Player.h
     PrimitiveRectangle.h 

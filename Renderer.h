@@ -33,7 +33,8 @@ public:
 private:
     sf::RenderWindow* m_window;
     std::map<RenderId, PrimitiveRectangle> m_rectangles;
-    std::map<RenderId, sf::VertexArray> m_tiles;
+    std::map<RenderId, sf::VertexArray> m_tiles; // DEPRECATE
+    std::array<std::map<TextureId, sf::VertexArray>, g_layer_count> m_tile_texture_batches;
 };
 
 inline std::unique_ptr<Renderer> g_renderer;

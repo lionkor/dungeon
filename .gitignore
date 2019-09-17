@@ -6,5 +6,7 @@
 *.sh
 perf.*
 bin/**
+cell_editor/bin/**
+**Makefile
 *.creator*
 .idea/**

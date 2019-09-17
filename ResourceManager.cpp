@@ -1,6 +1,9 @@
 #include "ResourceManager.h"
 #include <assert.h>
+#include <mutex>
 namespace stdfs=std::filesystem;
+
+
 
 ResourceManager::ResourceManager(stdfs::path resource_root_directory)
     : m_res_root(stdfs::absolute(resource_root_directory)),
@@ -12,9 +15,19 @@ ResourceManager::ResourceManager(stdfs::path resource_root_directory)
     load_all();
 }
 
-sf::Texture* ResourceManager::get_texture(const std::string& identifier)
+TextureId ResourceManager::get_texture_id(const std::string& identifier)
 {
-    return &m_textures[identifier];
+    if (m_texture_ids.find(identifier) == m_texture_ids.end())
+    {
+        return InvalidId;
+    }
+    return m_texture_ids[identifier];
+}
+
+sf::Texture* ResourceManager::get_texture(TextureId texture_id)
+{
+    assert(texture_id != InvalidId); // FIXME: Don't include this assert in release.
+    return &m_textures[texture_id];
 }
 
 void ResourceManager::load_all()
@@ -37,6 +50,14 @@ void ResourceManager::load_textures()
         sf::Texture tx{};
         tx.loadFromFile(tex_file_path.path().native());
         // FIXME: Check return value, handle failure.
-        m_textures.emplace(tex_file_path.path().stem(), tx);
+        
+        // Just in case we ever want to multithread this,
+        //  so I don't forget.
+        std::mutex mx;
+        mx.lock();
+        TextureId id = ++m_last_id;
+        m_texture_ids.emplace(tex_file_path.path().stem(), id);
+        m_textures.emplace(id, tx);
+        mx.unlock();
     }
 }

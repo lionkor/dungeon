@@ -17,6 +17,7 @@ typedef unsigned char uchar;
 const inline constexpr uchar g_cell_size    = 50;
 const inline constexpr uchar g_layer_count  = 4;
 const inline constexpr uchar g_tile_size    = 10;
+const inline constexpr uchar g_texture_size = 10;
 
 extern std::unique_ptr<class World> g_world;
 extern std::unique_ptr<class Renderer> g_renderer;

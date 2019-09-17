@@ -8,3 +8,9 @@ World::World()
       m_cell(std::make_unique<Cell>())
 {
 }
+
+void World::update()
+{
+    m_cell->update();
+    m_player->update();
+}
