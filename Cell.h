@@ -8,6 +8,7 @@ class Cell
 {
 public:
     Cell();
+    Cell(const std::filesystem::path& cell_file);
 private:
     std::array<std::array<Tile, g_cell_size>, g_cell_size> m_tiles;
 };

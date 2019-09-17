@@ -4,5 +4,7 @@
 *.files
 *.includes
 *.sh
+perf.*
 bin/**
 *.creator*
+.idea/**
