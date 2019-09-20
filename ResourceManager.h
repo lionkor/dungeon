@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include "Global.h"
 #include <filesystem>
+#include <assert.h>
 
 /*
  * ID System
@@ -31,30 +32,75 @@
  *   to the Renderer by id, who will then perform a cheap lookup.
  */
 
-typedef unsigned long TextureId;
+typedef unsigned long long Id_t;
+typedef Id_t TextureId;
+typedef Id_t ProceduralTextureId;
 
-inline static const unsigned long InvalidId = 0;
+inline static const Id_t InvalidId = 0;
+
+enum class IdType
+{
+    Invalid,
+    TextureId,
+    ProceduralTextureId
+};
 
 class ResourceManager
 {
 public:
-    ResourceManager(std::filesystem::path resource_root_directory);
+    ResourceManager(std::filesystem::path);
     
-    TextureId get_texture_id(const std::string& identifier);
-    sf::Texture* get_texture(TextureId texture_id);
+    TextureId get_texture_id(const std::string&);
+    sf::Texture* get_texture(TextureId);
+    
+    // Caution: This function is very slow.
+    ProceduralTextureId make_procedural_texture(const std::vector<TextureId>&);
+    sf::Texture* get_procedural_texture(ProceduralTextureId);
     
     void load_all();
 private:
     void load_textures();
     
-    TextureId m_last_id { 1 };
+    TextureId m_last_texture_id { 1 };
+    ProceduralTextureId m_last_procedural_texture_id { 1 };
     
     std::filesystem::path m_res_root;
     
     std::unordered_map<std::string, TextureId> m_texture_ids;
     std::unordered_map<TextureId, sf::Texture> m_textures;
+    
+    std::unordered_map<ProceduralTextureId, sf::Texture> m_procedural_textures;
 };
 
 inline std::unique_ptr<ResourceManager> g_resource_manager;
+
+class Id
+{
+public:
+    Id() : m_texture_type(IdType::Invalid), m_id(InvalidId) {}
+    Id(IdType T, Id_t id) : m_texture_type(T), m_id(id) {}
+    
+    inline bool invalid_id() const
+    {
+        return m_id == InvalidId;
+    }
+    
+    inline const sf::Texture* texture() const
+    {
+        switch (m_texture_type)
+        {
+        case IdType::Invalid:
+            assert(false); // This should never be reached. (Uninitialized)
+            break;
+        case IdType::TextureId:
+            return g_resource_manager->get_texture(m_id);
+        case IdType::ProceduralTextureId:
+            return g_resource_manager->get_procedural_texture(m_id);
+        }
+    }
+private:
+    IdType m_texture_type;
+    Id_t m_id;
+};
 
 #endif // RESOURCEMANAGER_H

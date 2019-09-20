@@ -26,8 +26,28 @@ TextureId ResourceManager::get_texture_id(const std::string& identifier)
 
 sf::Texture* ResourceManager::get_texture(TextureId texture_id)
 {
-    assert(texture_id != InvalidId); // FIXME: Don't include this assert in release.
+    assert(texture_id != InvalidId); // TODO: Don't include asserts in release.
     return &m_textures[texture_id];
+}
+
+
+ProceduralTextureId ResourceManager::make_procedural_texture(const std::vector<TextureId>& textures)
+{
+    sf::Image image;
+    image.create(g_texture_size, g_texture_size);
+    for (auto& texture_id : textures)
+        image.copy(m_textures[texture_id].copyToImage(), 0, 0, sf::IntRect(0,0,0,0), true);
+    sf::Texture texture;
+    texture.loadFromImage(image);
+    ProceduralTextureId id = ++m_last_procedural_texture_id;
+    m_procedural_textures.emplace(id, texture);
+    return id;
+}
+
+sf::Texture* ResourceManager::get_procedural_texture(ProceduralTextureId id)
+{
+    assert(id != InvalidId);
+    return &m_procedural_textures[id];
 }
 
 void ResourceManager::load_all()
@@ -55,7 +75,7 @@ void ResourceManager::load_textures()
         //  so I don't forget.
         std::mutex mx;
         mx.lock();
-        TextureId id = ++m_last_id;
+        TextureId id = ++m_last_texture_id;
         m_texture_ids.emplace(tex_file_path.path().stem(), id);
         m_textures.emplace(id, tx);
         mx.unlock();

@@ -2,6 +2,7 @@
 #define TILELAYER_H
 
 #include "ResourceManager.h"
+#include <bitset>
 
 class TileLayer
 {

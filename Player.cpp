@@ -1,52 +1,92 @@
 #include "Player.h"
 #include "Global.h"
+#include <assert.h>
 
 Player::Player(Vector2f position)
-    : m_position(position.x, position.y)
+    : m_position(position.x, position.y), m_size(g_tile_size * 0.8f)
 {
-    log(position.x << " " << position.y);
 }
 
 void Player::move(Vector2f dir)
 {
+    assert(false);
     // FIXME: Add mouse click auto move.
-    // FIXME: Consider delta time.
     dir = dir.normalized();
     m_position += dir * m_movement_speed;
-    log(m_position.x << " " << m_position.y);
+    //log("Position: " << m_position.x << " " << m_position.y);
 }
 
-void Player::update()
+void Player::update(const sf::Time& dt)
 {
     Vector2f dir(0, 0);
     
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+    if (m_forward_pressed)
     {
         dir += { 0, -1 };
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+    if (m_left_pressed)
     {
         dir += { -1, 0 };
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+    if (m_back_pressed)
     {
         dir += { 0, 1 };
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+    if (m_right_pressed)
     {
         dir += { 1, 0 };
     }
 
-    if (dir != Vector2f{0, 0}) move(dir);
+    if (dir != Vector2f{0, 0})
+    {
+        m_position += dir.normalized() * m_movement_speed * dt.asSeconds();
+    }
 }
 
-bool Player::handle_key(sf::Event::KeyEvent key)
+bool Player::handle_key_down(sf::Event::KeyEvent key)
+{
+    bool rc { true };
+    
+    switch(key.code)
+    {
+    case sf::Keyboard::W:
+        m_forward_pressed = true;
+        break;
+    case sf::Keyboard::A:
+        m_left_pressed = true;
+        break;
+    case sf::Keyboard::S:
+        m_back_pressed = true;
+        break;
+    case sf::Keyboard::D:
+        m_right_pressed = true;
+        break;
+    default:
+        rc = false;
+    }
+    
+    return rc;
+}
+
+bool Player::handle_key_up(sf::Event::KeyEvent key)
 {
     bool rc { true };
     
     switch(key.code)
     {
     default:
+    case sf::Keyboard::W:
+        m_forward_pressed = false;
+        break;
+    case sf::Keyboard::A:
+        m_left_pressed = false;
+        break;
+    case sf::Keyboard::S:
+        m_back_pressed = false;
+        break;
+    case sf::Keyboard::D:
+        m_right_pressed = false;
+        break;
         rc = false;
     }
     

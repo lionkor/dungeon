@@ -22,6 +22,7 @@ const inline constexpr uchar g_texture_size = 10;
 extern std::unique_ptr<class World> g_world;
 extern std::unique_ptr<class Renderer> g_renderer;
 extern std::unique_ptr<class ResourceManager> g_resource_manager;
+extern std::unique_ptr<class CollisionEngine> g_collision_engine;
 
 #include <filesystem>
 #define log(x) printf("%s:%u: ", std::filesystem::path(__FILE__).filename().c_str(), __LINE__); std::cout << x << std::endl

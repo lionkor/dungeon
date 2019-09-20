@@ -5,7 +5,7 @@
 #include <filesystem>
 
 template<typename _ResT>
-class Resource
+class Resource // DEPRECATE
 {
 public:
     template<typename ..._Args>
@@ -17,7 +17,7 @@ public:
     const _ResT get() const { return *m_res; }
 private:
     std::unique_ptr<_ResT> m_res;
-    // FIXME: Add "is_valid" or "is_loaded" flag.
+    // Add "is_valid" or "is_loaded" flag.
 };
 
 #endif // RESOURCE_H

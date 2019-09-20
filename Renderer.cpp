@@ -3,6 +3,8 @@
 #include "PrimitiveRectangle.h"
 #include "Tile.h"
 #include "TileLayer.h"
+#include "World.h"
+#include "ResourceManager.h"
 
 sf::VertexArray varray_from_tile(const Tile& tile)
 {
@@ -23,7 +25,6 @@ sf::VertexArray varray_from_tile(const Tile& tile)
 Renderer::Renderer(sf::RenderWindow* window)
     : m_window(window)
 {
-    window->setFramerateLimit(60);
 }
 
 RenderId Renderer::submit(VoidPtrWrapper self, const PrimitiveRectangle& rect)
@@ -32,17 +33,64 @@ RenderId Renderer::submit(VoidPtrWrapper self, const PrimitiveRectangle& rect)
     return self.as_render_id();
 }
 
-RenderId Renderer::submit(VoidPtrWrapper self, const Tile& tile)
+RenderId Renderer::submit(VoidPtrWrapper self, const Tile& tile, const std::bitset<8>& walls)
 {
-    for (unsigned char i = 0; i < 4; ++i)
+    std::array<std::pair<sf::VertexArray, Id>, g_layer_count>& layers = m_tiles[self.as_render_id()];
+    for (unsigned char i = 0; i < g_layer_count; ++i)
     {
-        sf::VertexArray& varray = m_tile_texture_batches[i][tile.layers()[i].texture_id()];
-        varray.setPrimitiveType(sf::PrimitiveType::Quads); // FIXME: Set this somewhere else, once!
-        varray.append({ tile.sf_position(), { 0, 0 }});
-        varray.append({ tile.sf_position() + sf::Vector2f { g_tile_size, 0 }, { g_texture_size, 0 }});
-        varray.append({ tile.sf_position() + sf::Vector2f { g_tile_size, g_tile_size }, { g_texture_size, g_texture_size }});
-        varray.append({ tile.sf_position() + sf::Vector2f { 0, g_tile_size }, { 0, g_texture_size }});
+        sf::VertexArray varray;
+        varray.setPrimitiveType(sf::PrimitiveType::Quads);
+        varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size }, { 0, 0 }});
+        varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size } + sf::Vector2f { g_tile_size, 0 }, { g_texture_size, 0 }});
+        varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size } + sf::Vector2f { g_tile_size, g_tile_size }, { g_texture_size, g_texture_size }});
+        varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size } + sf::Vector2f { 0, g_tile_size }, { 0, g_texture_size }});
+        
+        if (i == Layer::Wall && tile.layers()[i].texture_id() != InvalidId) 
+        {
+            // FIXME: Use folders or prefixes to find all procedural texture parts.
+            // FIXME: Optimize / Refactor this mess.
+            std::vector<TextureId> ids;
+            ids.reserve(6);
+            ids.emplace_back(g_resource_manager->get_texture_id("black"));
+            if (!(walls & TileSide::Top     ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_top"));
+            if (!(walls & TileSide::Right   ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_right"));
+            if (!(walls & TileSide::Bottom  ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_bottom"));
+            if (!(walls & TileSide::Left    ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_left"));
+            
+            if (!(walls & TileSide::Top).any() && !(walls & TileSide::Right).any()) 
+                ids.push_back(g_resource_manager->get_texture_id("wall_corner_top_right"));
+            if (!(walls & TileSide::Bottom).any() && !(walls & TileSide::Right).any()) 
+                ids.push_back(g_resource_manager->get_texture_id("wall_corner_bottom_right"));
+            if (!(walls & TileSide::Bottom).any() && !(walls & TileSide::Left).any()) 
+                ids.push_back(g_resource_manager->get_texture_id("wall_corner_bottom_left"));
+            if (!(walls & TileSide::Top).any() && !(walls & TileSide::Left).any()) 
+                ids.push_back(g_resource_manager->get_texture_id("wall_corner_top_left"));
+            
+            if ((walls & TileSide::Top).any() && 
+                (walls & TileSide::Right).any() && 
+                !(walls & TileSide::TopRight).any())
+                ids.push_back(g_resource_manager->get_texture_id("wall_inner_corner_top_right"));
+            if ((walls & TileSide::Bottom).any() && 
+                (walls & TileSide::Right).any() && 
+                !(walls & TileSide::BottomRight).any())
+                ids.push_back(g_resource_manager->get_texture_id("wall_inner_corner_bottom_right"));
+            if ((walls & TileSide::Bottom).any() && 
+                (walls & TileSide::Left).any() && 
+                !(walls & TileSide::BottomLeft).any())
+                ids.push_back(g_resource_manager->get_texture_id("wall_inner_corner_bottom_left"));
+            if ((walls & TileSide::Top).any() && 
+                (walls & TileSide::Left).any() && 
+                !(walls & TileSide::TopLeft).any())
+                ids.push_back(g_resource_manager->get_texture_id("wall_inner_corner_top_left"));
+            layers[i] = std::pair(varray, Id(IdType::ProceduralTextureId, g_resource_manager->make_procedural_texture(ids)));
+        }
+        else
+        {
+            layers[i] = std::pair(varray, Id(IdType::TextureId, tile.layers()[i].texture_id()));
+        }
     }
+    
+    
     return self.as_render_id(); // FIXME: RenderId doesn't work with this way of batching.
 }
 
@@ -50,29 +98,23 @@ void Renderer::render()
 {
     m_window->clear();
     
+    for (const std::pair<RenderId, std::array<std::pair<sf::VertexArray, Id>, g_layer_count>>& id_arr_pair : m_tiles)
+    for (const std::pair<sf::VertexArray, Id>& varray_id_pair : id_arr_pair.second)
+    {
+        if (!varray_id_pair.second.invalid_id())
+            m_window->draw(varray_id_pair.first, varray_id_pair.second.texture());
+    }
+    
     /*
-    for (auto& rect : m_rectangles)
-    {
-        sf::VertexArray arr(sf::PrimitiveType::Quads, 4);
-        for (int i = 0; i < 4; ++i)
-        {
-            arr[i] = rect.second.m_vertices[i];
-        }
-        //m_window->draw(arr);
-    }
-    
-    for (auto& tile : m_tiles)
-    {
-        m_window->draw(tile.second);
-    }
-    */
-    
-    for (auto& layer : m_tile_texture_batches)
-    for (auto& arr_pair : layer)
+    for (int i = 0; i < g_layer_count; ++i)
+    for (auto& arr_pair : m_tile_texture_batches[i])
     {
         if (arr_pair.first != InvalidId)
+        {
             m_window->draw(arr_pair.second, sf::RenderStates{g_resource_manager->get_texture(arr_pair.first)});
+        }
     }
+    */
     
     m_window->display();
 }

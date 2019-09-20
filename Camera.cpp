@@ -29,8 +29,19 @@ void Camera::move(float dx, float dy)
     update_window();
 }
 
+void Camera::resize(float x, float y)
+{
+    m_view.setSize(x, y);
+    update_window();
+}
+
 void Camera::zoom(float factor)
 {
     m_view.zoom(factor);
     update_window();
+}
+
+sf::Vector2f Camera::center()
+{
+    return m_view.getCenter();
 }

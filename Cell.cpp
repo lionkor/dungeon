@@ -7,8 +7,18 @@ Cell::Cell()
     for (int i = 0; i < g_cell_size; ++i)
     for (int k = 0; k < g_cell_size; ++k)
     {
-        m_tiles[i][k] = {Vector2f(i * g_tile_size, k * g_tile_size), {"", "wall", "", ""}};
-        g_renderer->submit(&m_tiles[i][k], m_tiles[i][k]);
+        if (i % 3 == 0 && k % 4 == 0)
+        {
+            m_tiles[i][k] = {Vector2i(i, k), {"ground", "", "", ""}};
+        }
+        else if (i % 4 == 0 || k % 3 == 0)
+        {
+            m_tiles[i][k] = {Vector2i(i, k), {"ground", "", "", ""}};
+        }
+        else 
+        {
+            m_tiles[i][k] = {Vector2i(i, k), {"ground", "", "wall", ""}};
+        }
     }
 }
 
@@ -17,12 +27,28 @@ Cell::Cell(const std::filesystem::path& path)
     //m_tiles = std::move(CellFileParser::parse(path));
 }
 
-void Cell::update()
+void Cell::initialize()
 {
     for (auto& arr : m_tiles)
     for (auto& tile : arr)
     {
-        tile.update();
+        tile.initialize(this);
     }
 }
+
+void Cell::update(const sf::Time& dt)
+{
+    if (!m_initialized)
+    {
+        initialize();
+        m_initialized = true;
+    }
+    
+    for (auto& arr : m_tiles)
+    for (auto& tile : arr)
+    {
+        tile.update(dt);
+    }
+}
+
 

@@ -15,8 +15,10 @@ public:
     void move_center_to(sf::Vector2f xy);
     
     void move(float dx, float dy);
-    
+    void resize(float x, float y);
     void zoom(float factor);
+    
+    sf::Vector2f center();
 private:
     void update_window()
     {

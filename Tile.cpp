@@ -1,4 +1,5 @@
 #include "Tile.h"
+#include "Cell.h"
 #include "Renderer.h"
 
 Tile::Tile()
@@ -12,12 +13,49 @@ Tile::Tile()
 {
 }
 
-void Tile::update()
+// Safe
+bool is_valid_texture_id(const Vector2i& pos, const Cell* cell)
 {
-    // FIXME: What does this update?
+    if (pos.x < 0 || pos.y < 0 || pos.x >= g_cell_size || pos.y >= g_cell_size)
+        return false;
+    return cell->tiles()[pos.x][pos.y].layers()[Layer::Wall].texture_id() != InvalidId;
 }
 
-Tile::Tile(const Vector2f& pos, const std::array<std::string, 4>& textures)
+bool is_same_texture_id(const Vector2i& pos, const Cell* cell, const Vector2i& my_pos)
+{
+    if (pos.x < 0 || pos.y < 0 || pos.x >= g_cell_size || pos.y >= g_cell_size)
+        return false;
+    return cell->tiles()[pos.x][pos.y].layers()[Layer::Wall].texture_id() == cell->tiles()[my_pos.x][my_pos.y].layers()[Layer::Wall].texture_id();
+}
+
+void Tile::initialize(const Cell* cell)
+{
+    log(m_position.x << " " << m_position.y);
+    // Generate bitset here
+    if (is_same_texture_id(m_position + Vector2i( 0, -1), cell, m_position))
+        m_walls |= TileSide::Top;
+    if (is_same_texture_id(m_position + Vector2i( 1, -1), cell, m_position))
+        m_walls |= TileSide::TopRight;
+    if (is_same_texture_id(m_position + Vector2i( 1,  0), cell, m_position))
+        m_walls |= TileSide::Right;
+    if (is_same_texture_id(m_position + Vector2i( 1,  1), cell, m_position))
+        m_walls |= TileSide::BottomRight;
+    if (is_same_texture_id(m_position + Vector2i( 0,  1), cell, m_position))
+        m_walls |= TileSide::Bottom;
+    if (is_same_texture_id(m_position + Vector2i(-1,  1), cell, m_position))
+        m_walls |= TileSide::BottomLeft;
+    if (is_same_texture_id(m_position + Vector2i(-1,  0), cell, m_position))
+        m_walls |= TileSide::Left;
+    if (is_same_texture_id(m_position + Vector2i(-1, -1), cell, m_position))
+        m_walls |= TileSide::TopLeft;
+    g_renderer->submit(this, *this, m_walls);
+}
+
+void Tile::update(const sf::Time& dt)
+{
+}
+
+Tile::Tile(const Vector2i& pos, const std::array<std::string, 4>& textures)
     : m_position(pos), 
       m_layers({ 
                 g_resource_manager->get_texture_id(textures[0]), // Ground

@@ -4,13 +4,19 @@
 #include "Vector2/Vector2.hpp"
 
 World::World()
-    : m_player(std::make_unique<Player>(Vector2f(0, 0))),
-      m_cell(std::make_unique<Cell>())
 {
 }
 
-void World::update()
+void World::init()
 {
-    m_cell->update();
-    m_player->update();
+    m_player = std::make_unique<Player>(Vector2f(5, 5));
+    m_cell = std::make_unique<Cell>();
 }
+
+void World::update(const sf::Time& dt)
+{
+    m_cell->update(dt);
+    m_player->update(dt);
+}
+
+
