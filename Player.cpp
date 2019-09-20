@@ -44,6 +44,17 @@ void Player::update(const sf::Time& dt)
     }
 }
 
+sf::Vector2f Player::sf_position()
+{
+    return sf::Vector2f(m_position.x, m_position.y);
+}
+
+sf::Vector2f Player::sf_size()
+{
+    return sf::Vector2f(m_size.x, m_size.y);
+}
+
+
 bool Player::handle_key_down(sf::Event::KeyEvent key)
 {
     bool rc { true };

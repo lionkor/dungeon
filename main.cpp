@@ -21,11 +21,11 @@ int main ()
     Camera main_camera(window);
     main_camera.activate();
     
+    g_collision_engine = std::make_unique<CollisionEngine>();
     g_resource_manager = std::make_unique<ResourceManager>("/home/lion/src/games/dungeon/res");
     g_renderer = std::make_unique<Renderer>(window);
     g_world = std::make_unique<World>();
     g_world->init();
-    g_collision_engine = std::make_unique<CollisionEngine>();
     
     // main loop
     while (window->isOpen())

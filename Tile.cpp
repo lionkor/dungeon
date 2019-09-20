@@ -30,7 +30,6 @@ bool is_same_texture_id(const Vector2i& pos, const Cell* cell, const Vector2i& m
 
 void Tile::initialize(const Cell* cell)
 {
-    log(m_position.x << " " << m_position.y);
     // Generate bitset here
     if (is_same_texture_id(m_position + Vector2i( 0, -1), cell, m_position))
         m_walls |= TileSide::Top;
