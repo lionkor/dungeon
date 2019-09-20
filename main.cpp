@@ -30,14 +30,14 @@ int main ()
     // main loop
     while (window->isOpen())
     {
-        sf::Vector2f vec = g_world->player().sf_position();
+        sf::Vector2f vec = g_world->player().sf_position() + sf::Vector2f(g_world->player().size().x / 2.0f, g_world->player().size().y / 2.0f);
         if (main_camera.center() != vec)
             main_camera.move_center_to(vec);
         dt = delta_clock.restart();
         
         g_world->update(dt);
-        g_collision_engine->update(dt);
         // Moved these around!
+        g_collision_engine->update(dt);
         g_renderer->render();
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))

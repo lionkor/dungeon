@@ -27,17 +27,19 @@ public:
     Renderer(sf::RenderWindow* window);
     
     // FIXME: 'submit' should take refcounted pointer, to make sure the resource cannot go out of scope.
-    RenderId submit(VoidPtrWrapper, const PrimitiveRectangle&);
+    RenderId submit(VoidPtrWrapper, const sf::VertexArray& arr);
     RenderId submit(VoidPtrWrapper, const Tile&, const std::bitset<8>& walls);
     void render();
+    inline sf::RenderWindow* window() { return m_window; }
 private:
     sf::RenderWindow* m_window;
-    std::map<RenderId, PrimitiveRectangle> m_rectangles;
+    // Cell Tiles
     std::map<
         RenderId, std::array< std::pair< sf::VertexArray, Id >, g_layer_count >
     > m_tiles;
     
-    std::array<std::map<TextureId, sf::VertexArray>, g_layer_count> m_tile_texture_batches; // DEPRECATE
+    // Raw VertexArrays
+    std::map<RenderId, sf::VertexArray> m_raw_varrays;
 };
 
 inline std::unique_ptr<Renderer> g_renderer;

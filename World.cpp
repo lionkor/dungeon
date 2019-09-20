@@ -9,7 +9,7 @@ World::World()
 
 void World::init()
 {
-    m_player = std::make_unique<Player>(Vector2f(5, 5));
+    m_player = std::make_unique<Player>(Vector2f(0, 0));
     m_cell = std::make_unique<Cell>();
 }
 

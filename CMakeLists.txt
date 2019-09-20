@@ -18,6 +18,7 @@ add_executable(dungeon main.cpp
     World.cpp World.h 
     Player.cpp Player.h
     Vector2/Vector2.hpp
+    abstract/IRigidbody.cpp abstract/IRigidbody.h
 )
 
 target_link_libraries(dungeon 

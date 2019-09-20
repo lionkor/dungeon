@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Global.h"
+#include "Renderer.h"
 #include <assert.h>
 
 Player::Player(Vector2f position)

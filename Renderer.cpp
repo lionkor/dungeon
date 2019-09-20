@@ -27,9 +27,9 @@ Renderer::Renderer(sf::RenderWindow* window)
 {
 }
 
-RenderId Renderer::submit(VoidPtrWrapper self, const PrimitiveRectangle& rect)
+RenderId Renderer::submit(VoidPtrWrapper self, const sf::VertexArray& arr)
 {
-    m_rectangles.emplace(self.as_render_id(), rect);
+    m_raw_varrays[self.as_render_id()] = arr;
     return self.as_render_id();
 }
 
@@ -104,6 +104,12 @@ void Renderer::render()
         if (!varray_id_pair.second.invalid_id())
             m_window->draw(varray_id_pair.first, varray_id_pair.second.texture());
     }
+    
+    for (const auto& pair : m_raw_varrays)
+    {
+        m_window->draw(pair.second);
+    }
+    m_raw_varrays.clear();
     
     /*
     for (int i = 0; i < g_layer_count; ++i)
