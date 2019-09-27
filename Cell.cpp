@@ -9,15 +9,15 @@ Cell::Cell()
     {
         if (i % 3 == 0 && k % 4 == 0)
         {
-            m_tiles[i][k] = {Vector2i(i, k), {"ground", "", "", ""}};
+            m_tiles[i][k] = {true, glm::vec<2, int>(i, k), {"ground", "", "", ""}};
         }
         else if (i % 4 == 0 || k % 3 == 0)
         {
-            m_tiles[i][k] = {Vector2i(i, k), {"ground", "", "", ""}};
+            m_tiles[i][k] = {true, glm::vec<2, int>(i, k), {"ground", "", "", ""}};
         }
         else 
         {
-            m_tiles[i][k] = {Vector2i(i, k), {"ground", "", "wall", ""}};
+            m_tiles[i][k] = {false, glm::vec<2, int>(i, k), {"ground", "", "wall", ""}};
         }
     }
 }

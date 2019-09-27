@@ -6,7 +6,7 @@
 
 typedef unsigned long long RigidbodyId;
 
-namespace abstract
+namespace interface
 {
 class IRigidbody;
 }
@@ -16,12 +16,13 @@ class CollisionEngine
 public:
     CollisionEngine();
     
-    RigidbodyId register_rigidbody(abstract::IRigidbody* rigidbody);
+    RigidbodyId register_rigidbody(interface::IRigidbody* rigidbody);
     bool unregister_rigidbody(const RigidbodyId&);
+    //void move_request(interface::IRigidbody* rb, const vec2& delta);
     void update(sf::Time dt);
 private:
     RigidbodyId m_last_rigidbody_id{ 1 };
-    std::unordered_map<RigidbodyId, abstract::IRigidbody*> m_rigidbodies;
+    std::unordered_map<RigidbodyId, interface::IRigidbody*> m_rigidbodies;
 };
 
 inline std::unique_ptr<CollisionEngine> g_collision_engine;

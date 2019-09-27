@@ -37,20 +37,25 @@ class Tile
 {
 public:
     Tile();
-    Tile(const Vector2i& pos, const std::array<std::string, g_layer_count>& textures);
+    Tile(bool walkable, const glm::vec<2,int>& pos, const std::array<std::string, g_layer_count>& textures);
     
     inline const std::array<TileLayer, g_layer_count>& layers() const { return m_layers; }
-    inline const Vector2i& position() const { return m_position; }
+    inline const glm::vec<2,int>& position() const { return m_position; }
+    inline glm::vec2 real_position() const { return glm::vec2(m_position) * float(g_tile_size); }
     // DO NOT USE AS INDEX, ITS `float`
     inline sf::Vector2f sf_position() const { return { float(m_position.x), float(m_position.y) }; }
     inline const std::bitset<8>& walls() const { return m_walls; }
+    
+    inline bool& walkable() { return m_walkable; }
+    inline bool walkable() const { return m_walkable; }
     
     void initialize(const class Cell* cell);
     void update(const sf::Time& dt);
 private:
     std::array<TileLayer, g_layer_count> m_layers;
-    Vector2i m_position;
+    glm::vec<2,int> m_position;
     std::bitset<8> m_walls { TileSide::None };
+    bool m_walkable;
 };
 
 #endif // TILE_H

@@ -5,6 +5,7 @@
 #include "TileLayer.h"
 #include "World.h"
 #include "ResourceManager.h"
+#include <SFML/OpenGL.hpp>
 
 sf::VertexArray varray_from_tile(const Tile& tile)
 {
@@ -25,6 +26,13 @@ sf::VertexArray varray_from_tile(const Tile& tile)
 Renderer::Renderer(sf::RenderWindow* window)
     : m_window(window)
 {
+    if (!sf::Shader::isAvailable()) 
+    {
+        throw std::runtime_error("Shaders are not supported on this platform. Contact the developers.");
+    }
+    // FIXME: Resize m_current_render_texture on resize events.
+    m_current_render_texture.create(m_window->getSize().x, m_window->getSize().y);
+    m_internal_clock.restart();
 }
 
 RenderId Renderer::submit(VoidPtrWrapper self, const sf::VertexArray& arr)
@@ -35,7 +43,7 @@ RenderId Renderer::submit(VoidPtrWrapper self, const sf::VertexArray& arr)
 
 RenderId Renderer::submit(VoidPtrWrapper self, const Tile& tile, const std::bitset<8>& walls)
 {
-    std::array<std::pair<sf::VertexArray, Id>, g_layer_count>& layers = m_tiles[self.as_render_id()];
+    std::array<std::shared_ptr<TileLayerRenderInfo>, g_layer_count>& layers = m_tiles[self.as_render_id()];
     for (unsigned char i = 0; i < g_layer_count; ++i)
     {
         sf::VertexArray varray;
@@ -82,11 +90,23 @@ RenderId Renderer::submit(VoidPtrWrapper self, const Tile& tile, const std::bits
                 (walls & TileSide::Left).any() && 
                 !(walls & TileSide::TopLeft).any())
                 ids.push_back(g_resource_manager->get_texture_id("wall_inner_corner_top_left"));
-            layers[i] = std::pair(varray, Id(IdType::ProceduralTextureId, g_resource_manager->make_procedural_texture(ids)));
+            layers[i] = std::make_shared<TileLayerRenderInfo>
+                    (
+                        Id(IdTextureType::ProceduralTextureId, g_resource_manager->make_procedural_texture(ids)), 
+                        varray, 
+                        g_resource_manager->get_full_shader_id("simple"), 
+                        tile.sf_position()
+                    );
         }
         else
         {
-            layers[i] = std::pair(varray, Id(IdType::TextureId, tile.layers()[i].texture_id()));
+            layers[i] = std::make_shared<TileLayerRenderInfo>
+                    (
+                        Id(IdTextureType::TextureId, tile.layers()[i].texture_id()), 
+                        varray, 
+                        g_resource_manager->get_full_shader_id("simple"), 
+                        tile.sf_position()
+                    );
         }
     }
     
@@ -96,31 +116,54 @@ RenderId Renderer::submit(VoidPtrWrapper self, const Tile& tile, const std::bits
 
 void Renderer::render()
 {
+    render_mx.lock();
     m_window->clear();
     
-    for (const std::pair<RenderId, std::array<std::pair<sf::VertexArray, Id>, g_layer_count>>& id_arr_pair : m_tiles)
-    for (const std::pair<sf::VertexArray, Id>& varray_id_pair : id_arr_pair.second)
+    auto time = m_internal_clock.getElapsedTime();
+    
+    //m_current_render_texture.clear();
+    for (const std::pair<RenderId, std::array<std::shared_ptr<TileLayerRenderInfo>, g_layer_count>>& layers : m_tiles)
+    for (std::shared_ptr<TileLayerRenderInfo> layer : layers.second)
     {
-        if (!varray_id_pair.second.invalid_id())
-            m_window->draw(varray_id_pair.first, varray_id_pair.second.texture());
+        if (layer && !layer->texture_id.invalid_id())
+        {
+            sf::Shader* shader = g_resource_manager->get_full_shader(layer->shader_id);
+            shader->setUniform("tile_position", sf::Glsl::Vec2(layer->position.x * g_tile_size, layer->position.y * g_tile_size));
+            shader->setUniform("player_position", g_world->player().sf_position());
+            shader->setUniform("time", float(time.asMilliseconds()));
+            shader->setUniform("texture_size", sf::Glsl::Vec2(g_texture_size, g_texture_size));
+            sf::Sprite sp(*layer->texture_id.texture(), sf::IntRect(0, 0, g_tile_size, g_tile_size));
+            sp.setPosition(layer->position.x * g_tile_size, layer->position.y * g_tile_size);
+            //m_current_render_texture.draw(layer->varray, g_resource_manager->get_full_shader(layer->shader_id));
+            m_window->draw(sp, g_resource_manager->get_full_shader(layer->shader_id));
+        }
     }
+    //m_current_render_texture.display();
+    
+    //m_window->clear();
+    //sf::Shader* sh = g_resource_manager->get_fragment_shader(g_resource_manager->get_fragment_shader_id("simple"));
+    //sh->setUniform("texture", m_current_render_texture.getTexture());
+    //sf::Sprite sprite(m_current_render_texture.getTexture());
+    //m_window->draw(sprite);
     
     for (const auto& pair : m_raw_varrays)
     {
         m_window->draw(pair.second);
     }
-    m_raw_varrays.clear();
-    
-    /*
-    for (int i = 0; i < g_layer_count; ++i)
-    for (auto& arr_pair : m_tile_texture_batches[i])
-    {
-        if (arr_pair.first != InvalidId)
-        {
-            m_window->draw(arr_pair.second, sf::RenderStates{g_resource_manager->get_texture(arr_pair.first)});
-        }
-    }
-    */
+    // WHY m_raw_varrays.clear();
     
     m_window->display();
+    render_mx.unlock();
+}
+
+TileLayerRenderInfo::TileLayerRenderInfo(Id texture_id, const sf::VertexArray& varray, FullShaderId shader_id, sf::Vector2f position)
+    : varray(varray), position(position), shader_id(shader_id), texture_id(texture_id)
+{
+    g_resource_manager->get_full_shader(shader_id)->setUniform("texture", sf::Shader::CurrentTexture);
+}
+
+void TileLayerRenderInfo::set_uniforms() const
+{
+    
+    //shader->setUniform("texture", *texture_id.texture());
 }
