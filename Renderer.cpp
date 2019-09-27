@@ -4,6 +4,7 @@
 #include "Tile.h"
 #include "TileLayer.h"
 #include "World.h"
+#include "Player.h"
 #include "ResourceManager.h"
 #include <SFML/OpenGL.hpp>
 
@@ -114,6 +115,12 @@ RenderId Renderer::submit(VoidPtrWrapper self, const Tile& tile, const std::bits
     return self.as_render_id(); // FIXME: RenderId doesn't work with this way of batching.
 }
 
+RenderId Renderer::submit(Player* player)
+{
+    m_player = player;
+    return 1;
+}
+
 void Renderer::render()
 {
     render_mx.lock();
@@ -136,6 +143,12 @@ void Renderer::render()
             sp.setPosition(layer->position.x * g_tile_size, layer->position.y * g_tile_size);
             //m_current_render_texture.draw(layer->varray, g_resource_manager->get_full_shader(layer->shader_id));
             m_window->draw(sp, g_resource_manager->get_full_shader(layer->shader_id));
+        }
+        
+        if (layer == layers.second[Layer::Wall])
+        {
+            // FIXME: Draw player properly.
+            m_window->draw(sf::RectangleShape(m_player->sf_size()), sf::Transform().translate(m_player->sf_position()));
         }
     }
     //m_current_render_texture.display();

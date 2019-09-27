@@ -47,6 +47,7 @@ public:
     // FIXME: 'submit' should take refcounted pointer, to make sure the resource cannot go out of scope.
     RenderId submit(VoidPtrWrapper, const sf::VertexArray& arr);
     RenderId submit(VoidPtrWrapper, const Tile&, const std::bitset<8>& walls);
+    RenderId submit(class Player* player);
     void render();
     inline sf::RenderWindow* window() { return m_window; }
 private:
@@ -54,6 +55,8 @@ private:
     sf::Clock m_internal_clock;
     // Cell Tiles
     std::map<RenderId, std::array<std::shared_ptr<TileLayerRenderInfo>, g_layer_count>> m_tiles;
+    
+    Player* m_player;
     
     // Raw VertexArrays
     std::map<RenderId, sf::VertexArray> m_raw_varrays;

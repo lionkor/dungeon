@@ -39,6 +39,8 @@ public:
     virtual inline vec2& set_size(const glm::vec2& siz) { return m_size = siz; }
     virtual inline float& set_max_speed(float f) { return m_max_velocity = f; }
     
+    virtual inline vec2& move_by(float dx, float dy) { return m_position += vec2(dx, dy); }
+    
     virtual inline const vec2& position() const { return m_position; }
     virtual inline const vec2& acceleration() const { return m_acceleration; }
     virtual inline const vec2& size() const { return m_size; }

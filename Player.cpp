@@ -4,8 +4,9 @@
 #include <assert.h>
 
 Player::Player(const glm::vec2& pos)
-    : interface::IRigidbody(pos, vec2(g_tile_size * 0.3f), vec2(0), vec2(0), 1.0f)
+    : interface::IRigidbody(pos, vec2(g_tile_size * 0.3f), vec2(0), vec2(0), 2.5f)
 {
+    g_renderer->submit(this);
 }
 
 void Player::update(const sf::Time& dt)
@@ -31,24 +32,14 @@ void Player::update(const sf::Time& dt)
 
     if (dir != vec2(0))
     {
-        m_acceleration = glm::normalize(dir) * dt.asSeconds() * 30.0f;
-        m_velocity *= 0.1f;
+        if (dir.x == 0) m_velocity.x = 0;
+        if (dir.y == 0) m_velocity.y = 0;
+        m_acceleration = glm::normalize(dir) * dt.asSeconds() * 20.0f;
     }
     else
     {
         m_acceleration = vec2(0);
         m_velocity *= 0.1f;
-    }
-    
-    if (m_velocity.length() > 0.f)
-    {
-        sf::VertexArray arr(sf::PrimitiveType::Quads, 4);
-        arr[0] = { sf_position(), sf::Color::Green };
-        arr[1] = { sf_position() + sf::Vector2f { size().x, 0. }, sf::Color::Green };
-        arr[2] = { sf_position() + sf_size(), sf::Color::Green };
-        arr[3] = { sf_position() + sf::Vector2f { 0, size().y }, sf::Color::Green };
-        
-        g_renderer->submit(this, arr);
     }
 }
 

@@ -11,7 +11,8 @@ interface::IRigidbody::IRigidbody(const glm::vec2& pos, const glm::vec2& size,
                                   float max_vel)
     : m_position(pos), m_size(size), 
       m_velocity(vel), m_acceleration(acc), 
-      m_max_velocity(max_vel)
+      m_max_velocity(max_vel),
+      m_rbody_id(g_collision_engine->register_rigidbody(this))
 {
 }
 

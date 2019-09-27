@@ -96,7 +96,47 @@ void handle_collision(interface::IRigidbody& rbody, const Tile& tile)
     //if (glm::distance(rbody.position() + rbody.size()/2.f, tile.real_position() + float(g_tile_size)) < rbody.size().x * rbody.size().y)
     if (collides(rbody.position(), rbody.size(), tile.real_position(), vec2(float(g_tile_size))))
     {
+        vec2 diff = (rbody.position() + rbody.size()/2.f) - (tile.real_position() + float(g_tile_size/2.f));
+        vec2 delta = (rbody.size()/2.f + float(g_tile_size/2.f)) - glm::abs(diff);
+        log(delta.x << " " << delta.y);
         
+        // do we need to correct x (true) or y (false)?
+        if (delta.x < delta.y)
+        {            
+            // are we left (true) or right (false)?
+            if (rbody.position().x < tile.real_position().x)
+            {
+                // right
+                rbody.move_by(-delta.x, 0);
+                // this prevents gaining velocity while running against a wall
+                rbody.set_velocity(rbody.velocity() * vec2(0, 1));
+            }
+            else
+            {
+                // left
+                rbody.move_by(delta.x, 0);
+                rbody.set_velocity(rbody.velocity() * vec2(0, 1));
+            }
+        }
+        else
+        {
+            // are we above (true) or below (false)?
+            if (rbody.position().y < tile.real_position().y)
+            {
+                // down
+                rbody.move_by(0, -delta.y);
+                rbody.set_velocity(rbody.velocity() * vec2(1, 0));
+            }
+            else
+            {
+                // up
+                rbody.move_by(0, delta.y);
+                rbody.set_velocity(rbody.velocity() * vec2(1, 0));
+            }
+        }
+    }
+    else
+    {
     }
 }
 
