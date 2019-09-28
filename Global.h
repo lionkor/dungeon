@@ -26,6 +26,7 @@ extern std::unique_ptr<class Renderer> g_renderer;
 extern std::unique_ptr<class ResourceManager> g_resource_manager;
 extern std::unique_ptr<class CollisionEngine> g_collision_engine;
 
+
 using Id_t=unsigned long long;
 using TextureId=Id_t;
 using ProceduralTextureId=Id_t;

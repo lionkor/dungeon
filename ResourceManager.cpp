@@ -50,6 +50,22 @@ ProceduralTextureId ResourceManager::make_procedural_texture(const std::vector<T
     return id;
 }
 
+ProceduralTextureId ResourceManager::make_procedural_texture(const std::vector<Id>& textures)
+{
+    sf::Image image;
+    image.create(g_texture_size, g_texture_size);
+    for (const Id& texture_id : textures)
+    {
+        if (!texture_id.invalid_id())
+            image.copy((*texture_id.texture()).copyToImage(), 0, 0, sf::IntRect(0,0,0,0), true);
+    }
+    sf::Texture texture;
+    texture.loadFromImage(image);
+    ProceduralTextureId id = ++m_last_procedural_texture_id;
+    m_procedural_textures.emplace(id, texture);
+    return id;
+}
+
 sf::Texture* ResourceManager::get_procedural_texture(ProceduralTextureId id)
 {
     assert(id != InvalidId);
@@ -165,7 +181,7 @@ void ResourceManager::load_fragment_shaders()
         bool success = sh->loadFromFile(fragment_file_path.path().native(), sf::Shader::Type::Fragment);
         if (!success)
             throw std::runtime_error("Fragment shader " + fragment_file_path.path().stem().string() + " could not be loaded.");
-        
+        sh->setUniform("texture", sf::Shader::CurrentTexture);
         FragmentShaderId id = ++m_last_fragment_shader_id;
         m_fragment_shader_ids.emplace(fragment_file_path.path().stem(), id);
         m_fragment_shaders.emplace(id, sh);
@@ -187,7 +203,7 @@ void ResourceManager::load_full_shaders()
             if (!success)
                 throw std::runtime_error("Full shader " + vert_file.path().stem().string() + " could not be loaded.");
             
-            
+            sh->setUniform("texture", sf::Shader::CurrentTexture);
             FullShaderId id = ++m_last_full_shader_id;
             m_full_shader_ids.emplace(vert_file.path().stem(), id);
             m_full_shaders.emplace(id, sh);

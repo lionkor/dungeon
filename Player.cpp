@@ -4,7 +4,7 @@
 #include <assert.h>
 
 Player::Player(const glm::vec2& pos)
-    : interface::IRigidbody(pos, vec2(g_tile_size * 0.3f), vec2(0), vec2(0), 2.5f)
+    : interface::IRigidbody(pos, vec2(g_tile_size * 0.3f), vec2(0), vec2(0), 0.5f)
 {
     g_renderer->submit(this);
 }
@@ -34,7 +34,7 @@ void Player::update(const sf::Time& dt)
     {
         if (dir.x == 0) m_velocity.x = 0;
         if (dir.y == 0) m_velocity.y = 0;
-        m_acceleration = glm::normalize(dir) * dt.asSeconds() * 20.0f;
+        m_acceleration = glm::normalize(dir) * (float(dt.asMilliseconds() / 100.f));
     }
     else
     {

@@ -44,27 +44,20 @@ RenderId Renderer::submit(VoidPtrWrapper self, const sf::VertexArray& arr)
 
 RenderId Renderer::submit(VoidPtrWrapper self, const Tile& tile, const std::bitset<8>& walls)
 {
-    std::array<std::shared_ptr<TileLayerRenderInfo>, g_layer_count>& layers = m_tiles[self.as_render_id()];
+    std::vector<TextureId> ids;
+    ids.reserve(3);
     for (unsigned char i = 0; i < g_layer_count; ++i)
     {
-        sf::VertexArray varray;
-        varray.setPrimitiveType(sf::PrimitiveType::Quads);
-        varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size }, { 0, 0 }});
-        varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size } + sf::Vector2f { g_tile_size, 0 }, { g_texture_size, 0 }});
-        varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size } + sf::Vector2f { g_tile_size, g_tile_size }, { g_texture_size, g_texture_size }});
-        varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size } + sf::Vector2f { 0, g_tile_size }, { 0, g_texture_size }});
         
         if (i == Layer::Wall && tile.layers()[i].texture_id() != InvalidId) 
         {
             // FIXME: Use folders or prefixes to find all procedural texture parts.
             // FIXME: Optimize / Refactor this mess.
-            std::vector<TextureId> ids;
-            ids.reserve(6);
             ids.emplace_back(g_resource_manager->get_texture_id("black"));
-            if (!(walls & TileSide::Top     ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_top"));
-            if (!(walls & TileSide::Right   ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_right"));
-            if (!(walls & TileSide::Bottom  ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_bottom"));
-            if (!(walls & TileSide::Left    ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_left"));
+            if (!(walls & TileSide::Top    ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_top"));
+            if (!(walls & TileSide::Right  ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_right"));
+            if (!(walls & TileSide::Bottom ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_bottom"));
+            if (!(walls & TileSide::Left   ).any()) ids.push_back(g_resource_manager->get_texture_id("wall_left"));
             
             if (!(walls & TileSide::Top).any() && !(walls & TileSide::Right).any()) 
                 ids.push_back(g_resource_manager->get_texture_id("wall_corner_top_right"));
@@ -91,26 +84,26 @@ RenderId Renderer::submit(VoidPtrWrapper self, const Tile& tile, const std::bits
                 (walls & TileSide::Left).any() && 
                 !(walls & TileSide::TopLeft).any())
                 ids.push_back(g_resource_manager->get_texture_id("wall_inner_corner_top_left"));
-            layers[i] = std::make_shared<TileLayerRenderInfo>
-                    (
-                        Id(IdTextureType::ProceduralTextureId, g_resource_manager->make_procedural_texture(ids)), 
-                        varray, 
-                        g_resource_manager->get_full_shader_id("simple"), 
-                        tile.sf_position()
-                    );
+            //textures[i] = Id(IdTextureType::ProceduralTextureId, g_resource_manager->make_procedural_texture(ids));
         }
         else
         {
-            layers[i] = std::make_shared<TileLayerRenderInfo>
-                    (
-                        Id(IdTextureType::TextureId, tile.layers()[i].texture_id()), 
-                        varray, 
-                        g_resource_manager->get_full_shader_id("simple"), 
-                        tile.sf_position()
-                    );
+            ids.push_back(tile.layers()[i].texture_id());
+            //textures[i] = Id(IdTextureType::TextureId, tile.layers()[i].texture_id());
         }
     }
+    sf::VertexArray varray;
+    varray.setPrimitiveType(sf::PrimitiveType::Quads);
+    varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size }, { 0, 0 }});
+    varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size } + sf::Vector2f { g_tile_size, 0 }, { g_texture_size, 0 }});
+    varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size } + sf::Vector2f { g_tile_size, g_tile_size }, { g_texture_size, g_texture_size }});
+    varray.append({ sf::Vector2f{ tile.sf_position().x * g_tile_size, tile.sf_position().y * g_tile_size } + sf::Vector2f { 0, g_tile_size }, { 0, g_texture_size }});
     
+    m_tiles.emplace(self.as_render_id(), TileRenderInfo(tile.sf_position(), 
+                    varray, 
+                    g_resource_manager->make_procedural_texture(ids), 
+                    g_resource_manager->get_full_shader_id("simple")
+                ));
     
     return self.as_render_id(); // FIXME: RenderId doesn't work with this way of batching.
 }
@@ -129,28 +122,19 @@ void Renderer::render()
     auto time = m_internal_clock.getElapsedTime();
     
     //m_current_render_texture.clear();
-    for (const std::pair<RenderId, std::array<std::shared_ptr<TileLayerRenderInfo>, g_layer_count>>& layers : m_tiles)
-    for (std::shared_ptr<TileLayerRenderInfo> layer : layers.second)
+    sf::Vector2f player_pos = g_world->player().sf_position();
+    g_resource_manager->get_full_shader(m_tiles.begin()->second.shader)->setUniform("player_size", g_world->player().sf_size());
+    g_resource_manager->get_full_shader(m_tiles.begin()->second.shader)->setUniform("player_position", player_pos);
+    g_resource_manager->get_full_shader(m_tiles.begin()->second.shader)->setUniform("view_position", m_window->mapPixelToCoords(sf::Mouse::getPosition()));
+    for (const std::pair<RenderId, TileRenderInfo>& layers : m_tiles)
     {
-        if (layer && !layer->texture_id.invalid_id())
-        {
-            sf::Shader* shader = g_resource_manager->get_full_shader(layer->shader_id);
-            shader->setUniform("tile_position", sf::Glsl::Vec2(layer->position.x * g_tile_size, layer->position.y * g_tile_size));
-            shader->setUniform("player_position", g_world->player().sf_position());
-            shader->setUniform("time", float(time.asMilliseconds()));
-            shader->setUniform("texture_size", sf::Glsl::Vec2(g_texture_size, g_texture_size));
-            sf::Sprite sp(*layer->texture_id.texture(), sf::IntRect(0, 0, g_tile_size, g_tile_size));
-            sp.setPosition(layer->position.x * g_tile_size, layer->position.y * g_tile_size);
-            //m_current_render_texture.draw(layer->varray, g_resource_manager->get_full_shader(layer->shader_id));
-            m_window->draw(sp, g_resource_manager->get_full_shader(layer->shader_id));
-        }
-        
-        if (layer == layers.second[Layer::Wall])
-        {
-            // FIXME: Draw player properly.
-            m_window->draw(sf::RectangleShape(m_player->sf_size()), sf::Transform().translate(m_player->sf_position()));
-        }
+        const TileRenderInfo& layer = layers.second;
+        sf::Texture* texture = g_resource_manager->get_procedural_texture(layer.texture_id);
+        m_window->draw(layer.varray, sf::RenderStates(sf::BlendMode(), sf::Transform(), texture, g_resource_manager->get_full_shader(layer.shader)));
     }
+    
+    // FIXME: Player should be drawn on layer WALL.
+    m_window->draw(sf::RectangleShape(m_player->sf_size()), sf::Transform().translate(m_player->sf_position()));
     //m_current_render_texture.display();
     
     //m_window->clear();
@@ -169,14 +153,3 @@ void Renderer::render()
     render_mx.unlock();
 }
 
-TileLayerRenderInfo::TileLayerRenderInfo(Id texture_id, const sf::VertexArray& varray, FullShaderId shader_id, sf::Vector2f position)
-    : varray(varray), position(position), shader_id(shader_id), texture_id(texture_id)
-{
-    g_resource_manager->get_full_shader(shader_id)->setUniform("texture", sf::Shader::CurrentTexture);
-}
-
-void TileLayerRenderInfo::set_uniforms() const
-{
-    
-    //shader->setUniform("texture", *texture_id.texture());
-}

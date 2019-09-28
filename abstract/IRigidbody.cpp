@@ -25,5 +25,5 @@ void interface::IRigidbody::physics_update(const sf::Time& dt) // FINAL
 {
     m_velocity += m_acceleration;
     m_velocity = glm::length(m_velocity) <= m_max_velocity ? m_velocity : glm::normalize(m_velocity) * m_max_velocity;
-    m_position += m_velocity;
+    m_position += m_velocity * float(dt.asMilliseconds() / 10.f);
 }

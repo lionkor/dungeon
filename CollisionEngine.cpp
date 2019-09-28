@@ -98,7 +98,7 @@ void handle_collision(interface::IRigidbody& rbody, const Tile& tile)
     {
         vec2 diff = (rbody.position() + rbody.size()/2.f) - (tile.real_position() + float(g_tile_size/2.f));
         vec2 delta = (rbody.size()/2.f + float(g_tile_size/2.f)) - glm::abs(diff);
-        log(delta.x << " " << delta.y);
+        //log(delta.x << " " << delta.y);
         
         // do we need to correct x (true) or y (false)?
         if (delta.x < delta.y)

@@ -53,6 +53,7 @@ public:
     
     // Caution: This function is very slow.
     ProceduralTextureId make_procedural_texture(const std::vector<TextureId>&);
+    ProceduralTextureId make_procedural_texture(const std::vector<class Id>&);
     sf::Texture* get_procedural_texture(ProceduralTextureId);
     
     VertexShaderId get_vertex_shader_id(const std::string&);

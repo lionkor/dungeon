@@ -17,7 +17,7 @@ int main ()
     
     sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(1280, 720), "Dungeon WIP", sf::Style::Default);
     window->setVerticalSyncEnabled(false);
-    window->setFramerateLimit(120);
+    //window->setFramerateLimit(30);
     sf::Clock delta_clock{};
     sf::Event event{};
     sf::Time dt{};
@@ -34,6 +34,7 @@ int main ()
     // main loop
     while (window->isOpen())
     {
+        //log(1. / dt.asSeconds());
         dt = delta_clock.restart();
         
         g_world->update(dt);

@@ -18,7 +18,6 @@ public:
     bool handle_key_up(sf::Event::KeyEvent key);
 private:
     Id m_texture;
-    float m_movement_speed { 50.0 };
     bool m_forward_pressed{false};
     bool m_back_pressed{false};
     bool m_left_pressed{false};

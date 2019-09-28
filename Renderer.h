@@ -22,18 +22,18 @@ public:
     inline RenderId as_render_id() const { return RenderId(m_ptr); }
 };
 
-class TileLayerRenderInfo
+class TileRenderInfo
 {
 public:
-    TileLayerRenderInfo(Id texture_id, const sf::VertexArray& varray, FullShaderId shader_id, sf::Vector2f position = {0, 0});
+    TileRenderInfo(const sf::Vector2f& pos, const sf::VertexArray& var, ProceduralTextureId tex, FullShaderId shader_id)
+        : position(pos), varray(var), texture_id(tex), shader(shader_id)
+    {
+    }
     
-    void set_uniforms() const;
-    
-    bool valid_id;
     sf::Vector2f position;
     sf::VertexArray varray;
-    Id texture_id; 
-    FullShaderId shader_id;
+    ProceduralTextureId texture_id;
+    FullShaderId shader;
 };
 
 
@@ -54,7 +54,8 @@ private:
     sf::RenderWindow* m_window;
     sf::Clock m_internal_clock;
     // Cell Tiles
-    std::map<RenderId, std::array<std::shared_ptr<TileLayerRenderInfo>, g_layer_count>> m_tiles;
+    //std::map<RenderId, std::array<std::shared_ptr<TileLayerRenderInfo>, g_layer_count>> m_tiles_old;
+    std::map<RenderId, TileRenderInfo> m_tiles;
     
     Player* m_player;
     
