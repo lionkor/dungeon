@@ -10,3 +10,4 @@ cell_editor/bin/**
 **Makefile
 *.creator*
 .idea/**
+**.autosave
