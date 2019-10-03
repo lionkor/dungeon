@@ -43,9 +43,9 @@ void Player::update(const sf::Time& dt)
     }
 }
 
-bool Player::handle_key_down(sf::Event::KeyEvent key)
+bool Player::handle_key_down_event(sf::Event::KeyEvent key)
 {
-    bool rc { true };
+    bool return_code { true };
     
     switch(key.code)
     {
@@ -62,19 +62,18 @@ bool Player::handle_key_down(sf::Event::KeyEvent key)
         m_right_pressed = true;
         break;
     default:
-        rc = false;
+        return_code = false;
     }
     
-    return rc;
+    return return_code;
 }
 
-bool Player::handle_key_up(sf::Event::KeyEvent key)
+bool Player::handle_key_up_event(sf::Event::KeyEvent key)
 {
-    bool rc { true };
+    bool return_code { true };
     
     switch(key.code)
     {
-    default:
     case sf::Keyboard::W:
         m_forward_pressed = false;
         break;
@@ -87,8 +86,9 @@ bool Player::handle_key_up(sf::Event::KeyEvent key)
     case sf::Keyboard::D:
         m_right_pressed = false;
         break;
-        rc = false;
+    default:
+        return_code = false;
     }
     
-    return rc;
+    return return_code;
 }

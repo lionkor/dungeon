@@ -14,8 +14,8 @@ public:
     //void move(Vector2f dir);
     
     inline Id& texture() { return m_texture; }
-    bool handle_key_down(sf::Event::KeyEvent key);
-    bool handle_key_up(sf::Event::KeyEvent key);
+    bool handle_key_down_event(sf::Event::KeyEvent key);
+    bool handle_key_up_event(sf::Event::KeyEvent key);
 private:
     Id m_texture;
     bool m_forward_pressed{false};

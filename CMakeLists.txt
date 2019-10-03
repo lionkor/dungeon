@@ -10,11 +10,14 @@ add_executable(dungeon main.cpp
     Global.h 
     Player.cpp Player.h
     PrimitiveRectangle.h 
+    Rectangle.cpp Rectangle.h
     Renderer.cpp Renderer.h 
     Resource.h
     ResourceManager.cpp ResourceManager.h
     Tile.cpp Tile.h 
     TileLayer.cpp TileLayer.h 
+    TileRenderInfo.cpp TileRenderInfo.h
+    VoidPtrWrapper.cpp VoidPtrWrapper.cpp
     World.cpp World.h 
     Player.cpp Player.h
     abstract/IRigidbody.cpp abstract/IRigidbody.h

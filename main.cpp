@@ -63,23 +63,19 @@ int main ()
             case sf::Event::MouseWheelMoved:
             {
                 if (event.mouseWheel.delta > 0)
-                {
                     main_camera.zoom(0.9f);
-                }
                 else
-                {
                     main_camera.zoom(1.1f);
-                }
             }break;
             case sf::Event::KeyPressed:
             {
                 // GUI handle keypress here
-                bool handled = g_world->player().handle_key_down(event.key);
+                bool handled = g_world->player().handle_key_down_event(event.key);
                 if (!handled); // process further here
             }break;
             case sf::Event::KeyReleased:
             {
-                bool handled = g_world->player().handle_key_up(event.key);
+                bool handled = g_world->player().handle_key_up_event(event.key);
                 if (!handled); // process further
             }break;
             }
