@@ -19,8 +19,8 @@ void main()
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     //light_level = distance(gl_Vertex.xy, player_position + player_size / 2.) / 90.;
     light_level = distance(gl_Vertex.xy, player_position + player_size / 2.);
-    light_level = (light_level * light_level) / 60./60.;
-    light_level -= .4;
+    light_level = (light_level * light_level) / 80./ 80.;
+    light_level -= .1;
     
     // transform the texture coordinates
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;

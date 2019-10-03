@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <cstdio>
 #include <glm/glm.hpp>
+#include <algorithm>
+#include <iterator>
 
 //#include "Vector2/Vector2.hpp"
 
@@ -28,6 +30,7 @@ extern std::unique_ptr<class CollisionEngine> g_collision_engine;
 
 
 using Id_t=unsigned long long;
+using RenderId=Id_t;
 using TextureId=Id_t;
 using ProceduralTextureId=Id_t;
 using VertexShaderId=Id_t;
