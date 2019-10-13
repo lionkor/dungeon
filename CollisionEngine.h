@@ -15,11 +15,12 @@ class CollisionEngine
 {
 public:
     CollisionEngine();
-    
+
     RigidbodyId register_rigidbody(interface::IRigidbody* rigidbody);
     bool unregister_rigidbody(const RigidbodyId&);
-    //void move_request(interface::IRigidbody* rb, const vec2& delta);
+    // void move_request(interface::IRigidbody* rb, const vec2& delta);
     void update(sf::Time dt);
+
 private:
     RigidbodyId m_last_rigidbody_id{ 1 };
     std::unordered_map<RigidbodyId, interface::IRigidbody*> m_rigidbodies;

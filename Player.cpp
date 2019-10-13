@@ -11,8 +11,8 @@ Player::Player(const glm::vec2& pos)
 
 void Player::update(const sf::Time& dt)
 {
-    vec2 dir(0);
-    
+    glm::vec<2, int> dir(0);
+
     if (m_forward_pressed)
     {
         dir += vec2(0, -1);
@@ -30,11 +30,13 @@ void Player::update(const sf::Time& dt)
         dir += vec2(1, 0);
     }
 
-    if (dir != vec2(0))
+    if (dir != glm::vec<2, int>(0))
     {
-        if (dir.x == 0) m_velocity.x = 0;
-        if (dir.y == 0) m_velocity.y = 0;
-        m_acceleration = glm::normalize(dir) * (float(dt.asMilliseconds() / 100.f));
+        if (dir.x == 0)
+            m_velocity.x = 0;
+        if (dir.y == 0)
+            m_velocity.y = 0;
+        m_acceleration = glm::normalize(vec2(dir)) * (float(dt.asMilliseconds() / 100.f));
     }
     else
     {
@@ -45,50 +47,50 @@ void Player::update(const sf::Time& dt)
 
 bool Player::handle_key_down_event(sf::Event::KeyEvent key)
 {
-    bool return_code { true };
-    
-    switch(key.code)
+    bool return_code{ true };
+
+    switch (key.code)
     {
-    case sf::Keyboard::W:
-        m_forward_pressed = true;
-        break;
-    case sf::Keyboard::A:
-        m_left_pressed = true;
-        break;
-    case sf::Keyboard::S:
-        m_back_pressed = true;
-        break;
-    case sf::Keyboard::D:
-        m_right_pressed = true;
-        break;
-    default:
-        return_code = false;
+        case sf::Keyboard::W:
+            m_forward_pressed = true;
+            break;
+        case sf::Keyboard::A:
+            m_left_pressed = true;
+            break;
+        case sf::Keyboard::S:
+            m_back_pressed = true;
+            break;
+        case sf::Keyboard::D:
+            m_right_pressed = true;
+            break;
+        default:
+            return_code = false;
     }
-    
+
     return return_code;
 }
 
 bool Player::handle_key_up_event(sf::Event::KeyEvent key)
 {
-    bool return_code { true };
-    
-    switch(key.code)
+    bool return_code{ true };
+
+    switch (key.code)
     {
-    case sf::Keyboard::W:
-        m_forward_pressed = false;
-        break;
-    case sf::Keyboard::A:
-        m_left_pressed = false;
-        break;
-    case sf::Keyboard::S:
-        m_back_pressed = false;
-        break;
-    case sf::Keyboard::D:
-        m_right_pressed = false;
-        break;
-    default:
-        return_code = false;
+        case sf::Keyboard::W:
+            m_forward_pressed = false;
+            break;
+        case sf::Keyboard::A:
+            m_left_pressed = false;
+            break;
+        case sf::Keyboard::S:
+            m_back_pressed = false;
+            break;
+        case sf::Keyboard::D:
+            m_right_pressed = false;
+            break;
+        default:
+            return_code = false;
     }
-    
+
     return return_code;
 }

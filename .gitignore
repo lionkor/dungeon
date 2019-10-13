@@ -3,7 +3,7 @@
 *.cxxflags
 *.files
 *.includes
-*.sh
+include/**
 perf.*
 bin/**
 cell_editor/bin/**
@@ -11,3 +11,4 @@ cell_editor/bin/**
 *.creator*
 .idea/**
 **.autosave
+*old_**

@@ -8,23 +8,21 @@ class Camera
 {
 public:
     Camera(sf::RenderWindow* m_window);
-    
+
     void activate();
-    
+
     void move_center_to(float x, float y);
     void move_center_to(sf::Vector2f xy);
-    
+
     void move(float dx, float dy);
     void resize(float x, float y);
     void zoom(float factor);
-    
+
     sf::Vector2f center();
+
 private:
-    void update_window()
-    {
-        m_window->setView(m_view);
-    }
-    
+    void update_window() { m_window->setView(m_view); }
+
     sf::RenderWindow* m_window;
     sf::View m_view;
 };

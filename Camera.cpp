@@ -1,15 +1,11 @@
 #include "Camera.h"
 
-Camera::Camera(sf::RenderWindow* window)
-    : m_window(window), m_view(m_window->getView())
+Camera::Camera(sf::RenderWindow* window) : m_window(window), m_view(m_window->getView())
 {
     log("Camera constructed.");
 }
 
-void Camera::activate()
-{
-    update_window();
-}
+void Camera::activate() { update_window(); }
 
 void Camera::move_center_to(float x, float y)
 {
@@ -41,7 +37,4 @@ void Camera::zoom(float factor)
     update_window();
 }
 
-sf::Vector2f Camera::center()
-{
-    return m_view.getCenter();
-}
+sf::Vector2f Camera::center() { return m_view.getCenter(); }

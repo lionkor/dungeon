@@ -1,11 +1,14 @@
+cmake_minimum_required(VERSION 3.15)
+
 project(dungeon)
+
+include_directories(dungeon "./include")
 
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(dungeon main.cpp 
     Camera.cpp Camera.h 
     Cell.cpp Cell.h
-    #CellFileParser.cpp CellFileParser.h
     CollisionEngine.cpp CollisionEngine.h
     Global.h 
     Player.cpp Player.h

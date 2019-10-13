@@ -7,8 +7,9 @@
 class TileRenderInfo
 {
 public:
-    TileRenderInfo(const sf::Vector2f& pos, const sf::VertexArray& var, ProceduralTextureId tex, FullShaderId shader_id);
-    
+    TileRenderInfo(const sf::Vector2f& pos, const sf::VertexArray& var,
+                   ProceduralTextureId tex, FullShaderId shader_id);
+
     sf::Vector2f position;
     sf::VertexArray varray;
     ProceduralTextureId texture_id;

@@ -1,10 +1,8 @@
 #include "World.h"
-#include "Player.h"
 #include "Cell.h"
+#include "Player.h"
 
-World::World()
-{
-}
+World::World() {}
 
 void World::init()
 {
@@ -18,5 +16,3 @@ void World::update(const sf::Time& dt)
     m_player->physics_update(dt);
     m_player->update(dt);
 }
-
-
