@@ -6,7 +6,7 @@ uniform vec2 tile_position;
 uniform float time;
 
 in float light_level;
-//in vec4 gl_TexCoord[1];
+in vec4 gl_TexCoord[1];
 
 void main()
 {

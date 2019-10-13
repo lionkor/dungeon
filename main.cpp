@@ -16,7 +16,7 @@ int main()
     XInitThreads();
 
     sf::RenderWindow* window =
-        new sf::RenderWindow(sf::VideoMode(1280, 720), "Dungeon WIP", sf::Style::Default);
+        new sf::RenderWindow(sf::VideoMode(1280, 720), "Dungeon WIP", sf::Style::Default, sf::ContextSettings(0, 0, 0, 1, 1));
     window->setVerticalSyncEnabled(false);
     // window->setFramerateLimit(30);
     sf::Clock delta_clock {};
