@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <array>
-#include <chaiscript/chaiscript.hpp>
 #include <cstdio>
 #include <glm/glm.hpp>
 #include <iostream>
