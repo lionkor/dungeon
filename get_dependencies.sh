@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir bin
+mkdir include
 cd include
 
 echo "getting ChaiScript"
