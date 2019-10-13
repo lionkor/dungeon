@@ -28,7 +28,7 @@ int main()
 
     g_collision_engine = std::make_unique<CollisionEngine>();
     g_resource_manager =
-        std::make_unique<ResourceManager>("/home/lion/src/games/dungeon/res");
+        std::make_unique<ResourceManager>("./res");
     g_renderer = std::make_unique<Renderer>(window);
     g_world = std::make_unique<World>();
     g_world->init();
