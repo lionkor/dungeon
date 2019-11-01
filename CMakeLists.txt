@@ -6,6 +6,10 @@ include_directories(dungeon "./include")
 
 set(CMAKE_CXX_STANDARD 17)
 
+SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+SET(BUILD_SHARED_LIBS OFF)
+SET(CMAKE_EXE_LINKER_FLAGS "-static")
+
 add_executable(dungeon main.cpp 
     Camera.cpp Camera.h 
     Cell.cpp Cell.h
