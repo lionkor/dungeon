@@ -28,7 +28,7 @@ add_executable(dungeon main.cpp
 
 target_link_libraries(dungeon 
     sfml-window sfml-graphics sfml-system # SFML
-    #stdc++fs # std::filesystem (gcc)
+    stdc++fs # std::filesystem (gcc)
     pthread
     GL
     X11
